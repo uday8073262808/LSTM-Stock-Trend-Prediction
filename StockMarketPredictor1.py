@@ -139,18 +139,18 @@ def ScrappingToGetSentiments(finviz_url,company):
     parsed_data = []
     for ticker, news_table in news_tables.items():
         for row in news_table.findAll('tr'):
-            title = row.a.text
-            date_data = row.td.text.split(' ')
-            if len(date_data) == 21:
-                time = date_data[12]
-            else:
-                date = date_data[12]
-                time = date_data[13]
-            parsed_data.append([ticker, date, time, title])
+            if row.a is not None:
+                title = row.a.text
+                date_data = row.td.text.split(' ')
+                if len(date_data) == 21:
+                    time = date_data[12]
+                else:
+                    date = date_data[12]
+                    time = date_data[13]
+                parsed_data.append([ticker, date, time, title])
 
     df = pd.DataFrame(parsed_data, columns=['ticker', 'date', 'time', 'title'])
     return df
-
 
 def SentimentAnalyser(df):
     vader = SentimentIntensityAnalyzer()
