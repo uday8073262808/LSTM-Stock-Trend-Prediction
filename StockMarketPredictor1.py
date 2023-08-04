@@ -17,7 +17,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
 from sklearn.preprocessing import MinMaxScaler
-
+nltk.download('vader_lexicon')
 def create_dataset(dataset,time_step=1):
     dataX,dataY=[],[]
     for i in range(len(dataset)-time_step-1):
