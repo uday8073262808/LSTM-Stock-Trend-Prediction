@@ -3,7 +3,7 @@ numpy==1.23.5
 pandas==1.5.3
 yfinance==0.2.27
 urllib3==1.26.14
-beautifulsoup4==4.11.1
+beautifulsoup4
 streamlit==1.24.1
 nltk==3.7
 matplotlib==3.7.1
