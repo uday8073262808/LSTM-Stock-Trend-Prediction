@@ -136,8 +136,11 @@ def ScrappingToGetSentiments(finviz_url,company):
     parsed_data = []
     for ticker, news_table in news_tables.items():
         for row in news_table.findAll('tr'):
-            title = row.a.text
-            date_data = row.td.text.split(' ')
+            date_data=""
+            title=""
+            if row.a is not None:
+                title = row.a.text
+                date_data = row.td.text.split(' ')
             if len(date_data) == 21:
                 time = date_data[12]
             else:
