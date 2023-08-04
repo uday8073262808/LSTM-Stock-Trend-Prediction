@@ -130,7 +130,7 @@ def newGraph(model,df1,scaler,test_data,X_test):
     ax.legend()
     col1,col2=st.columns(2)
     col1.title("Prediction :")
-    col1.write(f"<span style=' font-size: 20px; color:white;'>The price after 30 days will be around:</span> <span style='color: green; font-size: 30px; font-weight: bold; font-style: italic;'>{mainVal[0][0]:.2f}</span>", unsafe_allow_html=True)
+    col1.write(f"<span style=' font-size: 20px;'>The price after 30 days will be around:</span> <span style='color: green; font-size: 30px; font-weight: bold; font-style: italic;'>{mainVal[0][0]:.2f}</span>", unsafe_allow_html=True)
     col2.pyplot(fig)
     
     
