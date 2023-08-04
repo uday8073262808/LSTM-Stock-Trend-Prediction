@@ -6,8 +6,8 @@ try:
 except:
     from BeautifulSoup import BeautifulSoup
 import streamlit as st
-import nltk
-nltk.download('vader_lexicon')
+# import nltk
+# nltk.download('vader_lexicon')
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
 import numpy as np 
@@ -48,13 +48,13 @@ def SplittingDataSet(df1,scaler):
     model.add(LSTM(50))
     model.add(Dense(1))
     model.compile(loss='mean_squared_error',optimizer='adam')
-    with st.spinner("Please wait while processing..."):
+    with st.spinner("Please wait while processing...It may take upto 5 minutes.."):
         model.fit(X_train,Y_train,validation_data=(X_test,Y_test),epochs=100,batch_size=64,verbose=1)
-    st.success("Processing completed!")
     train_predict=model.predict(X_train)
     test_predict=model.predict(X_test)
     train_predict=scaler.inverse_transform(train_predict)
     test_predict=scaler.inverse_transform(test_predict)
+    st.success("Processing completed!")
     return train_predict,test_predict,model,df1,test_data,X_test
 
 def PlotGraph(train_predict,test_predict,df1,scaler):
@@ -85,6 +85,7 @@ def newGraph(model,df1,scaler,test_data,X_test):
     lst_output=[]
     n_steps=100
     i=0
+    mainVal=0
     while(i<30):
         
         if(len(temp_input)>100):
@@ -96,6 +97,9 @@ def newGraph(model,df1,scaler,test_data,X_test):
             #print(x_input)
             yhat = model.predict(x_input, verbose=0)
             print("{} day output {}".format(i,yhat))
+            inverse_data = scaler.inverse_transform(yhat)
+            if(i==29):
+                mainVal=inverse_data
             temp_input.extend(yhat[0].tolist())
             temp_input=temp_input[1:]
             #print(temp_input)
@@ -104,6 +108,9 @@ def newGraph(model,df1,scaler,test_data,X_test):
         else:
             x_input = x_input.reshape((1, n_steps,1))
             yhat = model.predict(x_input, verbose=0)
+            inverse_data = scaler.inverse_transform(yhat)
+            if(i==29):
+                mainVal=inverse_data
             print(yhat[0])
             temp_input.extend(yhat[0].tolist())
             print(len(temp_input))
@@ -112,15 +119,18 @@ def newGraph(model,df1,scaler,test_data,X_test):
         
     day_new=np.arange(1,101)
     day_pred=np.arange(101,131)
-    
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(day_new, scaler.inverse_transform(df1[len(df1)-100:]), label='Original Data')
-    ax.plot(day_pred, scaler.inverse_transform(lst_output), label='Predictions')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Value')
+    fig, ax = plt.subplots(figsize=(10, 6), facecolor='#0E1117')
+    ax.plot(day_new, scaler.inverse_transform(df1[len(df1)-100:]), label='Original Data',linewidth=5)
+    ax.plot(day_pred, scaler.inverse_transform(lst_output), label='Predictions',linewidth=5)
+    ax.set_facecolor("black")
+    ax.set_xlabel('Time', color='white')
+    ax.set_ylabel('Value', color='white')
+    ax.tick_params(axis='x', colors='white')
+    ax.tick_params(axis='y', colors='white')
     ax.legend()
     col1,col2=st.columns(2)
     col1.title("Prediction :")
+    col1.write(f"<span style=' font-size: 20px; color:white;'>The price after 30 days will be around:</span> <span style='color: green; font-size: 30px; font-weight: bold; font-style: italic;'>{mainVal[0][0]:.2f}</span>", unsafe_allow_html=True)
     col2.pyplot(fig)
     
     
@@ -154,6 +164,7 @@ def ScrappingToGetSentiments(finviz_url,company):
     df = pd.DataFrame(parsed_data, columns=['ticker', 'date', 'time', 'title'])
     return df
 
+
 def SentimentAnalyser(df):
     vader = SentimentIntensityAnalyzer()
     f = lambda title: vader.polarity_scores(title)['compound']
@@ -162,29 +173,7 @@ def SentimentAnalyser(df):
     return average_score
 
 
-def create_gradient():
-    cmap = plt.get_cmap("RdYlGn")
-    gradient = np.linspace(0, 1, 256)
-    gradient = np.vstack((gradient, gradient))
 
-    fig, ax = plt.subplots(figsize=(4, 2))
-    ax.set_title("Sentiment Analysis Rating", fontsize=14)
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.imshow(gradient, aspect='auto', cmap=cmap)
-    return fig
-
-
-def display_rating(sentiment_score):
-    fig = create_gradient()
-    ax = fig.gca()
-    x_pos = int(sentiment_score * 128 +128)
-    ax.plot([x_pos, x_pos], [0, 1], 'k-', linewidth=4)
-    st.pyplot(fig)
-def display_red(sentiment_score):
-    st.markdown("<style>div.stProgress > div{background-color: linear-gradient(to right, red, yellow, green);}</style>", unsafe_allow_html=True)
-    st.write("Score By Public:")
-    st.progress((sentiment_score + 1) / 2)
 def create_circular_meter(score):
     percentage = (score + 1) / 2 * 100
     angle = 90 + (percentage / 100) * 360
@@ -193,17 +182,18 @@ def create_circular_meter(score):
 
     x = r * np.cos(theta)
     y = r * np.sin(theta)
-
-    fig, ax = plt.subplots(figsize=(1, 1))
+    plt.figure(facecolor='#0E1117')
+    fig, ax = plt.subplots(figsize=(1, 1),facecolor="#0E1117")
+    ax.set_facecolor("#0E1117")
     if percentage >= 55:
-        ax.plot(x, y, color='green', linewidth=3)
+        ax.plot(x, y, color='lime', linewidth=3)
     elif percentage<=55 and percentage>=50:
         ax.plot(x, y, color='orange', linewidth=3)
     else :
-        ax.plot(x, y, color='red', linewidth=3)
-    ax.fill_between(x, y,color='white',alpha=0.5)
+        ax.plot(x, y, color='tomato', linewidth=3)
+    ax.fill_between(x, y,color='#0E1117',alpha=1)
 
-    ax.text(0, 0, f"{int(percentage)}%", ha='center', va='center', fontsize=10)
+    ax.text(0, 0, f"{int(percentage)}%", ha='center', va='center', fontsize=10,color="white")
     ax.axis('equal')
     ax.axis('off')
     plt.tight_layout()
@@ -269,7 +259,7 @@ def main():
             col1.title(company_dict[company])
             col2.title("")
             col3.pyplot(fig)
-            col3.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sentiment Score (Source: **_FinViz_**)")
+            col3.write("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sentiment Score (Source: **_FinViz_**)")
             col4.write("")
             stock = yf.Ticker(company)
             hist = stock.history(period=(color+'y'))
