@@ -1,7 +1,10 @@
 import yfinance as yf
 import pandas as pd
 from urllib.request import urlopen,Request
-from bs4 import BeautifulSoup
+try:
+    from bs4 import BeautifulSoup
+except:
+    from BeautifulSoup import BeautifulSoup
 import streamlit as st
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
@@ -136,11 +139,8 @@ def ScrappingToGetSentiments(finviz_url,company):
     parsed_data = []
     for ticker, news_table in news_tables.items():
         for row in news_table.findAll('tr'):
-            date_data=""
-            title=""
-            if row.a is not None:
-                title = row.a.text
-                date_data = row.td.text.split(' ')
+            title = row.a.text
+            date_data = row.td.text.split(' ')
             if len(date_data) == 21:
                 time = date_data[12]
             else:
