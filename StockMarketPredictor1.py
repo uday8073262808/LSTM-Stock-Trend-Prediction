@@ -6,8 +6,8 @@ try:
 except:
     from BeautifulSoup import BeautifulSoup
 import streamlit as st
-# import nltk
-# nltk.download('vader_lexicon')
+import nltk
+nltk.download('vader_lexicon')
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
 import numpy as np 
